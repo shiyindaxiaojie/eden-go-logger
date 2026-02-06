@@ -4,7 +4,7 @@
 
 English | [中文](README_zh-CN.md)
 
-A high-performance, zero-dependency logging library for Go. Inspired by Log4j2, it is designed for enterprise-grade applications, supporting async writing, log rotation, and advanced filtering.
+A high-performance, zero-dependency, production-proven Go logging library. Inspired by Log4j2, it is designed to provide enterprise-grade logging capabilities, supporting async writing, log rotation, complex filtering, and other advanced features.
 
 ## 🌟 Key Features
 
