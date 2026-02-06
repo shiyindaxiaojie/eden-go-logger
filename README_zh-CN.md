@@ -1,7 +1,8 @@
 # Eden Go Logger
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/shiyindaxiaojie/eden-go-logger)](https://goreportcard.com/report/github.com/shiyindaxiaojie/eden-go-logger)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/shiyindaxiaojie/eden-go-logger)](https://goreportcard.com/report/github.com/shiyindaxiaojie/eden-go-logger) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+[English](README.md) | 中文
 
 一个高性能、无依赖、功能通过的 Go 语言日志库。设计灵感源自 Log4j2，旨在提供企业级的日志处理能力，支持异步写入、日志滚动、复杂过滤等高级特性。
 

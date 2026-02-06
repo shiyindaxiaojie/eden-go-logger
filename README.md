@@ -1,7 +1,8 @@
 # Eden Go Logger
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/shiyindaxiaojie/eden-go-logger)](https://goreportcard.com/report/github.com/shiyindaxiaojie/eden-go-logger)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/shiyindaxiaojie/eden-go-logger)](https://goreportcard.com/report/github.com/shiyindaxiaojie/eden-go-logger) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+English | [中文](README_zh-CN.md)
 
 A high-performance, zero-dependency logging library for Go. Inspired by Log4j2, it is designed for enterprise-grade applications, supporting async writing, log rotation, and advanced filtering.
 
