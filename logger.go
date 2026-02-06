@@ -264,6 +264,11 @@ func (l *Logger) WithFields(fields map[string]interface{}) *FieldLogger {
 	return &FieldLogger{logger: l, fields: fields}
 }
 
+// WithError logs with error
+func (l *Logger) WithError(err error) *FieldLogger {
+	return &FieldLogger{logger: l, fields: map[string]interface{}{"error": err}}
+}
+
 // Close closes all appenders
 func (l *Logger) Close() error {
 	l.mu.Lock()
@@ -330,12 +335,45 @@ func (f *FieldLogger) log(level Level, format string, args ...interface{}) {
 	}
 }
 
+func (f *FieldLogger) Trace(format string, args ...interface{}) {
+	f.log(TRACE, format, args...)
+}
+
+func (f *FieldLogger) Debug(format string, args ...interface{}) {
+	f.log(DEBUG, format, args...)
+}
+
 func (f *FieldLogger) Info(format string, args ...interface{}) {
 	f.log(INFO, format, args...)
 }
 
+func (f *FieldLogger) Warn(format string, args ...interface{}) {
+	f.log(WARN, format, args...)
+}
+
 func (f *FieldLogger) Error(format string, args ...interface{}) {
 	f.log(ERROR, format, args...)
+}
+
+func (f *FieldLogger) Fatal(format string, args ...interface{}) {
+	f.log(FATAL, format, args...)
+}
+
+// WithFields adds more fields to the existing FieldLogger
+func (f *FieldLogger) WithFields(fields map[string]interface{}) *FieldLogger {
+	newFields := make(map[string]interface{}, len(f.fields)+len(fields))
+	for k, v := range f.fields {
+		newFields[k] = v
+	}
+	for k, v := range fields {
+		newFields[k] = v
+	}
+	return &FieldLogger{logger: f.logger, fields: newFields}
+}
+
+// WithError adds error to the existing FieldLogger
+func (f *FieldLogger) WithError(err error) *FieldLogger {
+	return f.WithFields(map[string]interface{}{"error": err})
 }
 
 // getCaller retrieves caller information

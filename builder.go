@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+// Fields type alias for compatibility
+type Fields map[string]interface{}
+
 // Builder provides a fluent API for configuring a Logger
 type Builder struct {
 	name            string
@@ -238,9 +241,24 @@ func Init(cfg Configuration) error {
 				if appCfg.Name != "" {
 					c.WithName(appCfg.Name)
 				}
-				// Apply level filter if specified
+				// Construct filter
+				var filter Filter
 				if appCfg.Level != "" {
-					c.WithFilter(NewThresholdFilter(ParseLevel(appCfg.Level)))
+					filter = NewThresholdFilter(ParseLevel(appCfg.Level))
+				}
+
+				if len(appCfg.Filter) > 0 {
+					if customFilter := ParseFilter(appCfg.Filter); customFilter != nil {
+						if filter != nil {
+							filter = NewCompositeFilter(ALL, filter, customFilter)
+						} else {
+							filter = customFilter
+						}
+					}
+				}
+
+				if filter != nil {
+					c.WithFilter(filter)
 				}
 				appender = c
 
@@ -264,9 +282,25 @@ func Init(cfg Configuration) error {
 					rf.WithName(appCfg.Name)
 				}
 
-				// Level filter
+				// Construct filter
+				var filter Filter
 				if appCfg.Level != "" {
-					rf.WithFilter(NewThresholdFilter(ParseLevel(appCfg.Level)))
+					filter = NewThresholdFilter(ParseLevel(appCfg.Level))
+				}
+
+				if len(appCfg.Filter) > 0 {
+					if customFilter := ParseFilter(appCfg.Filter); customFilter != nil {
+						if filter != nil {
+							// If both level and custom filter are present, require BOTH to accept (AND logic)
+							filter = NewCompositeFilter(ALL, filter, customFilter)
+						} else {
+							filter = customFilter
+						}
+					}
+				}
+
+				if filter != nil {
+					rf.WithFilter(filter)
 				}
 
 				// Policies (use global if not overridden)
@@ -436,4 +470,30 @@ func API(method, path, clientIP string, statusCode int, duration time.Duration) 
 
 func LogHTTPRequest(statusCode int, method, path string, latency time.Duration, clientIP string) {
 	API(method, path, clientIP, statusCode, latency)
+}
+
+// WithFields adds fields to the global logger
+func WithFields(fields map[string]interface{}) *FieldLogger {
+	if globalLogger != nil {
+		return globalLogger.WithFields(fields)
+	}
+	// Return a dummy/safe logger if globalLogger is nil?
+	// Or panic/return nil. Existing methods return nil.
+	return nil
+}
+
+// WithField adds a single field
+func WithField(key string, value interface{}) *FieldLogger {
+	if globalLogger != nil {
+		return globalLogger.WithFields(map[string]interface{}{key: value})
+	}
+	return nil
+}
+
+// WithError adds an error field
+func WithError(err error) *FieldLogger {
+	if globalLogger != nil {
+		return globalLogger.WithFields(map[string]interface{}{"error": err})
+	}
+	return nil
 }
