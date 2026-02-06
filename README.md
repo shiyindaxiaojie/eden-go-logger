@@ -9,17 +9,6 @@ A high-performance, zero-dependency logging library for Go. Inspired by Log4j2, 
 ## 🌟 Key Features
 
 - **High Performance Async IO**: Built-in `AsyncAppender` uses native Channels + Workers for lock-free async writing, ensuring minimal impact on business performance.
-
-## 🧩 Performance Checks
-
-Benchmark results on i5-1135G7 @ 2.40GHz:
-
-- **Log Overload (Discard)**: ~1,500,000 ops/sec (692 ns/op) - Pure processing power.
-- **Sync File IO**: ~120,000 ops/sec (8016 ns/op) - Dependent on disk speed.
-- **Async File IO**: Provides microsecond-level write latency until buffer saturation.
-
-> **Best Practice**: Always enable `async: true` in production with a sufficient buffer size (e.g., 4096) to handle traffic spikes and prevent unexpected I/O blocking.
-
 - **Enterprise Log Rotation**: Auto-rotation based on size (`20MB`) or time (`0 0 4 * * ?` Cron expression), with gzip compression.
 - **Powerful Filters**:
     - **Level**: Standard severity filtering.
@@ -149,6 +138,16 @@ Pattern Config:
 ```go
 c.Pattern("%d [%p] [%X{request_id}] %m%n")
 ```
+
+## 🧩 Performance Checks
+
+Benchmark results on i5-1135G7 @ 2.40GHz:
+
+- **Log Overload (Discard)**: ~1,500,000 ops/sec (692 ns/op) - Pure processing power.
+- **Sync File IO**: ~120,000 ops/sec (8016 ns/op) - Dependent on disk speed.
+- **Async File IO**: Provides microsecond-level write latency until buffer saturation.
+
+> **Best Practice**: Always enable `async: true` in production with a sufficient buffer size (e.g., 4096) to handle traffic spikes and prevent unexpected I/O blocking.
 
 ## 📄 License
 
