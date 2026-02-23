@@ -16,7 +16,7 @@ type AsyncAppender struct {
 // NewAsyncAppender creates a new AsyncAppender
 func NewAsyncAppender(delegate Appender, bufferSize int) *AsyncAppender {
 	if bufferSize <= 0 {
-		bufferSize = 4096 // Default buffer size, robust enough for high load
+		bufferSize = 4096
 	}
 
 	a := &AsyncAppender{
@@ -36,17 +36,7 @@ func (a *AsyncAppender) Name() string {
 }
 
 // Append pushes the entry to the channel
-// It will BLOCK if the buffer is full to ensure no log loss (Reliability > Drop)
-// For "Strongest", data integrity is usually preferred over dropping.
 func (a *AsyncAppender) Append(entry *Entry) error {
-	// Send to channel
-	// Note: If channel is closed, this will panic. We ensure Close() happens after all Appends
-	// or we accept panic as "program is shutting down incorrectly".
-	// But to be safe in Go, usually strictly controlled lifecycle.
-
-	// Optimization: We could use a non-blocking select for "Drop" strategy,
-	// but user asked for "Strongest" which usually implies "Best", and losing logs is bad.
-	// We sticking to blocking to guarantee delivery.
 	a.msgChan <- entry
 	return nil
 }
@@ -66,11 +56,8 @@ func (a *AsyncAppender) worker() {
 	defer a.wg.Done()
 
 	for entry := range a.msgChan {
-		// We could implement batching here for even more performance if the delegate supports it.
-		// For now, simple forwarding is already huge improvement over sync.
 		err := a.delegate.Append(entry)
 		if err != nil {
-			// Fallback? Print to stderr?
 			fmt.Printf("AsyncAppender: failed to write log: %v\n", err)
 		}
 	}
