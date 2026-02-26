@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -27,6 +29,8 @@ type Layout interface {
 //	%M         - method/function name
 //	%X{key}    - MDC value
 //	%marker    - marker
+//	%t         - timestamp (UnixNano)
+//	%T         - thread (goroutine) ID
 type PatternLayout struct {
 	pattern string
 	parts   []patternPart
@@ -117,6 +121,8 @@ func (p *PatternLayout) Format(entry *Entry) []byte {
 			}
 		case "t":
 			buf.WriteString(fmt.Sprintf("%d", time.Now().UnixNano()))
+		case "T":
+			buf.WriteString(getThreadName(getGoroutineID()))
 		default:
 			buf.WriteString("%" + part.variable)
 		}
@@ -288,4 +294,42 @@ func (c *ColoredLayout) Format(entry *Entry) []byte {
 		return []byte(color + string(result) + colorReset)
 	}
 	return result
+}
+
+var threadNames sync.Map
+
+// SetThreadName explicitly sets a readable name for the current goroutine (thread).
+// It's highly recommended to use defer ClearThreadName() immediately after to prevent memory leaks.
+func SetThreadName(name string) {
+	threadNames.Store(getGoroutineID(), name)
+}
+
+// ClearThreadName removes the custom name associated with the current goroutine.
+func ClearThreadName() {
+	threadNames.Delete(getGoroutineID())
+}
+
+// getThreadName returns the custom thread name if set, otherwise falls back to the goroutine ID.
+func getThreadName(gid string) string {
+	if name, ok := threadNames.Load(gid); ok {
+		return name.(string)
+	}
+	return gid
+}
+
+// getGoroutineID 快速获取当前 goroutine 的 ID
+func getGoroutineID() string {
+	var buf [64]byte
+	n := runtime.Stack(buf[:], false)
+	// runtime.Stack() 输出第一行类似于 "goroutine 1 [running]:"
+	firstLine := string(buf[:n])
+	spaceIdx := strings.Index(firstLine, " ")
+	if spaceIdx < 0 {
+		return "unknown"
+	}
+	nextSpaceIdx := strings.Index(firstLine[spaceIdx+1:], " ")
+	if nextSpaceIdx < 0 {
+		return "unknown"
+	}
+	return firstLine[spaceIdx+1 : spaceIdx+1+nextSpaceIdx]
 }

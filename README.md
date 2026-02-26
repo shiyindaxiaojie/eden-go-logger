@@ -136,8 +136,27 @@ l.Info("Processing order") // Automatically includes request_id
 Pattern Config:
 
 ```go
-c.Pattern("%d [%p] [%X{request_id}] %m%n")
+pattern: "%d [%p] [%X{request_id}] %m%n"
 ```
+
+### 4. Pattern Layout Variables
+
+When configuring the output format via `.Pattern(...)` or `pattern: ...` in YAML, the following layout variables are supported:
+
+| Pattern      | Description                                                           | Example                   |
+| ------------ | --------------------------------------------------------------------- | ------------------------- |
+| `%d{format}` | Date/time using Go time format (`2006-01-02 15:04:05.000` by default) | `2026-02-26 14:00:00.000` |
+| `%p`         | Log level                                                             | `INFO`, `ERROR`           |
+| `%c`         | Logger name                                                           | `AppLog`                  |
+| `%m`         | Log message                                                           | `Hello World`             |
+| `%n`         | Platform-specific newline                                             | `\n`                      |
+| `%F`         | File name (where log was called)                                      | `main.go`                 |
+| `%L`         | Line number                                                           | `42`                      |
+| `%M`         | Method/Function name                                                  | `main.main`               |
+| `%X{key}`    | MDC (Mapped Diagnostic Context) value                                 | `req-123456`              |
+| `%marker`    | Marker name                                                           | `API`                     |
+| `%t`         | Timestamp (UnixNano)                                                  | `1677649500000000000`     |
+| `%T`         | Thread (Goroutine) ID                                                 | `35`                      |
 
 ## 🧩 Performance Checks
 
