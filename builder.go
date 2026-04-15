@@ -396,6 +396,28 @@ func GetLogger() interface{} {
 	return globalLogger
 }
 
+// SetLevel sets the log level for the global logger
+func SetLevel(level Level) {
+	if globalLogger != nil {
+		globalLogger.SetLevel(level)
+	}
+}
+
+// SetLevelString sets the log level for the global logger from a string
+func SetLevelString(level string) {
+	if globalLogger != nil {
+		globalLogger.SetLevel(ParseLevel(level))
+	}
+}
+
+// GetLevel returns the current log level of the global logger
+func GetLevel() Level {
+	if globalLogger != nil {
+		return globalLogger.GetLevel()
+	}
+	return OFF
+}
+
 func Trace(format string, args ...interface{}) {
 	if globalLogger != nil {
 		globalLogger.Trace(format, args...)
